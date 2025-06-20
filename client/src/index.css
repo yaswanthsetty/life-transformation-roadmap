@@ -1,0 +1,6 @@
+/* index.css cleaned: no Tailwind, only minimal base styles */
+body {
+  margin: 0;
+  font-family: 'Inter', Arial, sans-serif;
+  background: #f5f6fa;
+}
