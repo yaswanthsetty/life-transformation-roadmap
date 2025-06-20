@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import styled, { ThemeProvider, createGlobalStyle } from 'styled-components';
-import { CheckCircle, Circle, Star, Heart, Target, Calendar, Trophy } from 'lucide-react';
+import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
+import { CheckCircle, Circle, Star, Trophy } from 'lucide-react';
 import dayjs from 'dayjs';
 import ProgressDetails from './ProgressDetails';
-import ProgressPlans from './ProgressPlans';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 const lightTheme = {
@@ -129,103 +128,6 @@ const LifeTransformationRoadmap = () => {
       { id: 'sleep', time: '10:30 PM', task: 'Sleep (7-8 hours essential!)', category: 'wellness', points: 15 }
     ]
   };
-
-  const weeklyGoals = {
-    fitness: [
-      'Complete 5 workouts (mix of strength, cardio, flexibility)',
-      'Hit 10,000 steps daily',
-      'Try one new healthy recipe',
-      'Take progress photos/measurements'
-    ],
-    skills: [
-      'Complete current ML/CV skill module',
-      'Finish one hands-on project',
-      'Contribute to GitHub 5+ days',
-      'Apply learnings to real problem'
-    ],
-    lifestyle: [
-      'Maintain consistent sleep schedule',
-      'Read for 3.5+ hours total',
-      'Practice mindfulness 4+ times',
-      'Connect with one industry professional'
-    ]
-  };
-
-  const monthlyMilestones = [
-    {
-      month: 1,
-      fitness: 'Establish workout routine, lose 2-4 lbs, build basic strength',
-      skills: 'Master Python advanced + ML mathematics',
-      lifestyle: 'Perfect morning routine, consistent sleep, reduced screen time'
-    },
-    {
-      month: 2,
-      fitness: 'Noticeable muscle definition, improved endurance, healthy eating habits',
-      skills: 'Scikit-Learn mastery + first MLOps project deployed',
-      lifestyle: 'Strong discipline habits, regular reading, better focus'
-    },
-    {
-      month: 3,
-      fitness: 'Significant physical transformation, improved athletic performance',
-      skills: 'OpenCV mastery + real-time CV application built',
-      lifestyle: 'Leadership mindset, networking actively, confident presence'
-    },
-    {
-      month: 4,
-      fitness: 'Peak physical condition, inspiring others, athletic goals achieved',
-      skills: 'Deep learning CV + production ML system deployed',
-      lifestyle: 'Industry connections, internship applications, personal brand'
-    }
-  ];
-
-  const workoutPlans = {
-    strength: {
-      title: 'Strength Training Day',
-      exercises: [
-        'Push-ups: 3 sets, as many as you can',
-        'Squats: 3 sets of 15-20 reps',
-        'Plank: 3 sets, hold for 30-60 seconds',
-        'Pull-ups/Assisted pull-ups: 3 sets',
-        'Lunges: 3 sets of 10 each leg',
-        'Dips (using chair): 3 sets of 8-12'
-      ],
-      tips: 'Focus on form over speed. Rest 1-2 minutes between sets.'
-    },
-    cardio: {
-      title: 'Cardio Day',
-      exercises: [
-        '20-30 minute brisk walk or light jog',
-        'High-intensity intervals: 15 minutes',
-        'Stair climbing for 10-15 minutes',
-        'Dancing to music (make it fun!)',
-        'Cycling or outdoor sports',
-        'Jump rope: 3 sets of 2 minutes'
-      ],
-      tips: 'Aim for moderate intensity - you should be able to talk but feel challenged.'
-    },
-    yoga: {
-      title: 'Flexibility & Recovery Day',
-      exercises: [
-        'Sun salutations: 5 complete rounds',
-        'Warrior pose sequence (both sides)',
-        'Downward dog to cobra flow',
-        'Hip opener poses and twists',
-        'Child pose and spinal twists',
-        'Relaxation and breathing: 5 minutes'
-      ],
-      tips: 'Focus on breathing and gentle stretching. Listen to your body.'
-    }
-  };
-
-  const nutritionTips = [
-    '🥗 Eat protein with every meal (eggs, chicken, lentils, Greek yogurt)',
-    '💧 Drink 3-4 liters water daily (carry a bottle everywhere)',
-    '🍎 5+ servings fruits/vegetables daily (aim for colorful plates)',
-    '🚫 Minimize processed foods, sugary drinks, late-night snacking',
-    '⏰ Eat every 3-4 hours to maintain energy and metabolism',
-    '🥜 Include healthy fats: nuts, avocado, olive oil',
-    '🍚 Complex carbs for sustained energy: oats, brown rice, quinoa'
-  ];
 
   // Load progress history and streak from server
   useEffect(() => {
@@ -398,18 +300,6 @@ const LifeTransformationRoadmap = () => {
       .reduce((sum, task) => sum + task.points, 0);
     const totalPoints = allTasks.reduce((sum, task) => sum + task.points, 0);
     return { completed: completedPoints, total: totalPoints };
-  };
-
-  const getCategoryColor = (category) => {
-    const colors = {
-      fitness: 'bg-red-100 text-red-800 border-red-200',
-      skills: 'bg-blue-100 text-blue-800 border-blue-200',
-      nutrition: 'bg-green-100 text-green-800 border-green-200',
-      wellness: 'bg-purple-100 text-purple-800 border-purple-200',
-      academics: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      growth: 'bg-orange-100 text-orange-800 border-orange-200'
-    };
-    return colors[category] || 'bg-gray-100 text-gray-800 border-gray-200';
   };
 
   const points = getDailyPoints();
