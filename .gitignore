@@ -1,0 +1,47 @@
+# .gitignore for a full-stack React + Express + MongoDB project
+# Node modules
+node_modules/
+
+# Build output
+build/
+dist/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# dotenv environment variables
+.env
+.env.*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VSCode settings
+.vscode/
+
+# Production
+/server/build/
+/client/build/
+
+# Misc
+*.local
+coverage/
+
+# Ignore IDE settings
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Ignore test coverage
+/coverage
+
+# Ignore database dumps
+*.mongodb
+*.sql
+*.sqlite
