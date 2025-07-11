@@ -20,7 +20,7 @@ A beautiful, modern, and responsive full-stack web app for daily schedule, progr
 ### Installation
 1. **Clone the repository:**
    ```sh
-   git clone https://github.com/yourusername/life-transformation-roadmap.git
+   git clone https://github.com/yaswanthsetty/life-transformation-roadmap.git
    cd life-transformation-roadmap
    ```
 2. **Install dependencies:**
