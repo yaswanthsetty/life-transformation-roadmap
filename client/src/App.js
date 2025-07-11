@@ -5,17 +5,6 @@ import LifeTransformationRoadmap from './components/LifeTransformationRoadmap';
 import ProgressPlans from './components/ProgressPlans';
 import './App.css';
 
-const lightTheme = {
-  background: '#f5f6fa',
-  card: '#fff',
-  text: '#222',
-  accent: '#2563eb',
-  border: '#e0e0e0',
-  nav: '#f0f4fa',
-  navActive: '#2563eb',
-  navText: '#222',
-  navTextActive: '#fff',
-};
 const darkTheme = {
   background: '#181a1b',
   card: '#23272f',

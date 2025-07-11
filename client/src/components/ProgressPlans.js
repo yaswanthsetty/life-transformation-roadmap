@@ -123,54 +123,29 @@ const ProgressPlans = ({
   const [monthlyProgress, setMonthlyProgress] = useState({});
   const [loading, setLoading] = useState(true);
   const [saveMsg, setSaveMsg] = useState('');
+  const [greeting, setGreeting] = useState('');
+
+  // Personal greeting
+  useEffect(() => {
+    const hours = new Date().getHours();
+    let greet = 'Welcome!';
+    if (hours < 12) greet = 'Good morning! Ready to make progress?';
+    else if (hours < 18) greet = 'Good afternoon! Keep going!';
+    else greet = 'Good evening! Reflect and plan ahead!';
+    setGreeting(greet);
+  }, []);
 
   // Fetch progress on mount
   useEffect(() => {
     // Try to load from localStorage first
-    const local = localStorage.getItem('weeklyProgress');
-    if (local) {
-      setWeeklyProgress(JSON.parse(local));
-      setLoading(false);
-      return;
-    }
-    fetch(API_URL)
-      .then(res => res.json())
-      .then(data => {
-        // Normalize weeklyProgress: convert arrays to objects with index keys
-        const normalizeWeekly = (wp) => {
-          const out = {};
-          for (const cat of Object.keys(weeklyGoals)) {
-            let base = wp && wp[cat];
-            if (Array.isArray(base)) {
-              out[cat] = Object.fromEntries(base.map((v, i) => [i, v]));
-            } else if (typeof base === 'object' && base !== null) {
-              out[cat] = { ...base };
-            } else {
-              out[cat] = {};
-            }
-            // Ensure all indices exist and default to false
-            for (let i = 0; i < (weeklyGoals[cat]?.length || 0); i++) {
-              if (!(i in out[cat])) out[cat][i] = false;
-            }
-          }
-          return out;
-        };
-        // Normalize monthlyProgress: convert arrays to objects with index keys
-        const normalizeMonthly = (mp) => {
-          if (Array.isArray(mp)) {
-            return mp.map(entry => (Array.isArray(entry)
-              ? Object.fromEntries(entry.map((v, i) => [i, v]))
-              : entry));
-          }
-          return mp;
-        };
-        setWeeklyProgress(normalizeWeekly(data.weekly || {}));
-        setMonthlyProgress(normalizeMonthly(data.monthly || {}));
-        setLoading(false);
-      });
+    const localWeekly = localStorage.getItem('weeklyProgress');
+    const localMonthly = localStorage.getItem('monthlyProgress');
+    if (localWeekly) setWeeklyProgress(JSON.parse(localWeekly));
+    if (localMonthly) setMonthlyProgress(JSON.parse(localMonthly));
+    setLoading(false);
   }, [weeklyGoals]);
 
-  // Save progress to backend
+  // Save progress to backend and localStorage
   const saveProgress = (newWeekly, newMonthly) => {
     fetch(API_URL, {
       method: 'POST',
@@ -181,6 +156,25 @@ const ProgressPlans = ({
         setSaveMsg('Progress saved!');
         setTimeout(() => setSaveMsg(''), 1500);
       });
+    localStorage.setItem('weeklyProgress', JSON.stringify(newWeekly));
+    localStorage.setItem('monthlyProgress', JSON.stringify(newMonthly));
+  };
+
+  // Reset progress
+  const resetProgress = () => {
+    const emptyWeekly = {};
+    for (const cat of Object.keys(weeklyGoals)) {
+      emptyWeekly[cat] = {};
+      for (let i = 0; i < (weeklyGoals[cat]?.length || 0); i++) {
+        emptyWeekly[cat][i] = false;
+      }
+    }
+    const emptyMonthly = monthlyMilestones.map(() => ({ 0: false, 1: false, 2: false }));
+    setWeeklyProgress(emptyWeekly);
+    setMonthlyProgress(emptyMonthly);
+    saveProgress(emptyWeekly, emptyMonthly);
+    setSaveMsg('Progress reset!');
+    setTimeout(() => setSaveMsg(''), 1500);
   };
 
   // Defensive: ensure progress is always an object
@@ -197,10 +191,12 @@ const ProgressPlans = ({
 
   return (
     <Container>
+      <div style={{fontWeight:700, fontSize:'1.25rem', marginBottom:18, color:'#4a4a4a'}}>{greeting}</div>
+      <button onClick={resetProgress} style={{marginBottom:24, background:'#eee', border:'none', borderRadius:8, padding:'0.5rem 1.2rem', fontWeight:600, cursor:'pointer', color:'#444', boxShadow:'0 1px 4px #0001'}}>Reset Progress</button>
       {loading && <div style={{marginBottom:16}}>Loading progress...</div>}
       {saveMsg && <Toast>{saveMsg}</Toast>}
       <Section>
-        <Title>🏋️‍♂️ Workout Plans</Title>
+        <Title>🏋️‍♂️ My Workout Plans</Title>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 32 }}>
           {Object.values(workoutPlans).map(plan => (
             <div key={plan.title}>
@@ -216,13 +212,8 @@ const ProgressPlans = ({
         </div>
       </Section>
       <Section>
-        <Title>📅 Weekly Goals</Title>
+        <Title>📅 My Weekly Goals</Title>
         {Object.entries(weeklyGoals).map(([cat, goals]) => {
-          // Debug: log for lifestyle
-          if (cat === 'lifestyle') {
-            // eslint-disable-next-line no-console
-            console.log('LIFESTYLE weeklyProgress:', weeklyProgress[cat], 'goals:', goals);
-          }
           return (
             <div key={cat} style={{ marginBottom: 24 }}>
               <h4 style={{ marginBottom: 8, textTransform: 'capitalize', fontWeight: 600 }}>{cat}</h4>
@@ -242,8 +233,6 @@ const ProgressPlans = ({
                         };
                         setWeeklyProgress(updated);
                         saveProgress(updated, monthlyProgress);
-                        // Save to localStorage
-                        localStorage.setItem('weeklyProgress', JSON.stringify({ ...weeklyProgress, [cat]: { ...weeklyProgress[cat], [idx]: e.target.checked } }));
                       }}
                     />
                     {goal}
@@ -258,7 +247,7 @@ const ProgressPlans = ({
         })}
       </Section>
       <Section>
-        <Title>🏆 Monthly Milestones</Title>
+        <Title>🏆 My Monthly Milestones</Title>
         {monthlyMilestones.map((milestone, idx) => {
           const total = 3;
           const progress = (monthlyProgress && typeof monthlyProgress[idx] === 'object') ? monthlyProgress[idx] : {};

@@ -90,6 +90,7 @@ const LifeTransformationRoadmap = () => {
   const [initialLoad, setInitialLoad] = useState(true);
   const [dailyGoals, setDailyGoals] = useState([]);
   const [newGoalText, setNewGoalText] = useState('');
+  const [newGoalTime, setNewGoalTime] = useState('');
   const [loadingGoals, setLoadingGoals] = useState(true);
   const [editingGoalId, setEditingGoalId] = useState(null);
   const [editGoalText, setEditGoalText] = useState('');
@@ -198,12 +199,13 @@ const LifeTransformationRoadmap = () => {
     fetch(GOALS_API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: 'daily', text: newGoalText, points: 10, period: 'custom', category: 'custom' })
+      body: JSON.stringify({ type: 'daily', text: newGoalText, time: newGoalTime, points: 10, period: 'custom', category: 'custom' })
     })
       .then(res => res.json())
       .then(goal => {
         setDailyGoals([...dailyGoals, goal]);
         setNewGoalText('');
+        setNewGoalTime('');
       });
   };
 
@@ -239,7 +241,7 @@ const LifeTransformationRoadmap = () => {
   // Merge custom daily goals into schedule for progress tracking
   const customTasks = dailyGoals.map(goal => ({
     id: 'custom-' + goal._id,
-    time: '',
+    time: goal.time || '',
     task: goal.text,
     category: goal.category || 'custom',
     points: goal.points || 10
@@ -260,6 +262,17 @@ const LifeTransformationRoadmap = () => {
   const [editingTask, setEditingTask] = useState(null);
   const [editTaskText, setEditTaskText] = useState('');
   const [editTaskTime, setEditTaskTime] = useState('');
+
+  // Restore nutritionTips definition
+  const nutritionTips = [
+    '🥗 Eat protein with every meal (eggs, chicken, lentils, Greek yogurt)',
+    '💧 Drink 3-4 liters water daily (carry a bottle everywhere)',
+    '🍎 5+ servings fruits/vegetables daily (aim for colorful plates)',
+    '🚫 Minimize processed foods, sugary drinks, late-night snacking',
+    '⏰ Eat every 3-4 hours to maintain energy and metabolism',
+    '🥜 Include healthy fats: nuts, avocado, olive oil',
+    '🍚 Complex carbs for sustained energy: oats, brown rice, quinoa'
+  ];
 
   const handleEditScheduleTask = (period, idx) => {
     setEditingTask({ period, idx });
@@ -304,6 +317,29 @@ const LifeTransformationRoadmap = () => {
 
   const points = getDailyPoints();
   const progressPercentage = Math.round((points.completed / points.total) * 100);
+
+  // Add state for new schedule task
+  const [newTaskText, setNewTaskText] = useState({ morning: '', afternoon: '', evening: '' });
+  const [newTaskTime, setNewTaskTime] = useState({ morning: '', afternoon: '', evening: '' });
+
+  // Add new schedule task
+  const handleAddScheduleTask = (period) => {
+    if (!newTaskText[period].trim() || !newTaskTime[period].trim()) return;
+    const updated = { ...customSchedule };
+    updated[period] = [
+      ...updated[period],
+      {
+        id: `${period}-custom-${Date.now()}`,
+        time: newTaskTime[period],
+        task: newTaskText[period],
+        category: period,
+        points: 10
+      }
+    ];
+    setCustomSchedule(updated);
+    setNewTaskText({ ...newTaskText, [period]: '' });
+    setNewTaskTime({ ...newTaskTime, [period]: '' });
+  };
 
   return (
     <ThemeProvider theme={themeObj}>
@@ -414,6 +450,12 @@ const LifeTransformationRoadmap = () => {
               </ul>
               <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
                 <input
+                  value={newGoalTime}
+                  onChange={e => setNewGoalTime(e.target.value)}
+                  placeholder="Time (optional)"
+                  style={{ width: 120, borderRadius: 6, border: `1px solid ${themeObj.border}`, padding: 8 }}
+                />
+                <input
                   value={newGoalText}
                   onChange={e => setNewGoalText(e.target.value)}
                   placeholder="Add a new goal..."
@@ -470,6 +512,27 @@ const LifeTransformationRoadmap = () => {
                     </div>
                   </div>
                 ))}
+                {/* Add Task UI */}
+                <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                  <input
+                    value={newTaskTime[period]}
+                    onChange={e => setNewTaskTime({ ...newTaskTime, [period]: e.target.value })}
+                    placeholder="Time (e.g. 7:00 AM)"
+                    style={{ width: 100, borderRadius: 6, border: `1px solid ${themeObj.border}`, padding: 6 }}
+                  />
+                  <input
+                    value={newTaskText[period]}
+                    onChange={e => setNewTaskText({ ...newTaskText, [period]: e.target.value })}
+                    placeholder="Add a new task..."
+                    style={{ flex: 1, borderRadius: 6, border: `1px solid ${themeObj.border}`, padding: 6 }}
+                  />
+                  <button
+                    onClick={() => handleAddScheduleTask(period)}
+                    style={{ background: themeObj.accent, color: themeObj.navTextActive, border: 'none', borderRadius: 6, padding: '6px 14px', fontWeight: 600, cursor: 'pointer' }}
+                  >
+                    Add
+                  </button>
+                </div>
               </div>
             </Card>
           ))}
